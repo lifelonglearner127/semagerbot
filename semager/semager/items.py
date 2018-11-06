@@ -8,7 +8,33 @@
 import scrapy
 
 
-class SemagerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+class ChildItem(scrapy.Item):
+    parent = scrapy.Field()
+    child = scrapy.Field()
+    relation = scrapy.Field()
+    depth = scrapy.Field()
+    date = scrapy.Field()
+
+
+class FollowedByItem(scrapy.Item):
+    parent = scrapy.Field()
+    followed_by = scrapy.Field()
+    rank = scrapy.Field()
+    depth = scrapy.Field()
+    date = scrapy.Field()
+
+
+class LedByItem(scrapy.Item):
+    parent = scrapy.Field()
+    led_by = scrapy.Field()
+    rank = scrapy.Field()
+    depth = scrapy.Field()
+    date = scrapy.Field()
+
+
+class CategoryItem(scrapy.Item):
+    parent = scrapy.Field()
+    category = scrapy.Field()
+    likelihood = scrapy.Field()
+    depth = scrapy.Field()
+    date = scrapy.Field()
