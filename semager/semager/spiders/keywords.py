@@ -61,6 +61,10 @@ class KeywordsSpider(scrapy.Spider):
         rank = range(1, self.word_limit+1)
         date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+        # Fields related to Table3
+        leaders = data[2].xpath('.//text()').extract()
+        leaders = leaders[:self.word_limit]
+
         try:
             depth = response.meta['depth']
         except KeyError:
@@ -75,7 +79,8 @@ class KeywordsSpider(scrapy.Spider):
                 'depth': depth,
                 'follower': followers[i],
                 'rank': rank[i],
-                'date': date
+                'date': date,
+                'leader': leaders[i]
             }
 
 
