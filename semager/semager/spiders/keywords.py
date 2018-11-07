@@ -4,6 +4,7 @@ import datetime
 from scrapy.loader import ItemLoader
 from semager.items import ChildItem, FollowedByItem, LedByItem, CategoryItem
 
+
 class KeywordsSpider(scrapy.Spider):
     name = 'keywords'
     allowed_domains = ['semager.de']
@@ -35,6 +36,7 @@ class KeywordsSpider(scrapy.Spider):
             self.word_limit = 25
 
         q_str = q.strip()
+        self.file_name = q_str
         q_str = q_str.replace(' ', '+')
         self.start_urls = ['http://www.semager.de/keywords/?q=%s' % q_str]
 

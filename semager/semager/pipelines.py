@@ -17,19 +17,23 @@ class SemagerPipeline(object):
 
 
     def open_spider(self, spider):
-        self.file1 = open('1.csv', 'w', newline='')
+        filename = ''
+        if spider.name == 'keywords':
+            filename = spider.file_name
+
+        self.file1 = open('{}1.csv'.format(filename), 'w', newline='')
         writer = csv.DictWriter(self.file1, fieldnames=self.file1_fieldnames)
         writer.writeheader()
 
-        self.file2 = open('2.csv', 'w', newline='')
+        self.file2 = open('{}2.csv'.format(filename), 'w', newline='')
         writer = csv.DictWriter(self.file2, fieldnames=self.file2_fieldnames)
         writer.writeheader()
 
-        self.file3 = open('3.csv', 'w', newline='')
+        self.file3 = open('{}3.csv'.format(filename), 'w', newline='')
         writer = csv.DictWriter(self.file3, fieldnames=self.file3_fieldnames)
         writer.writeheader()
 
-        self.file4 = open('4.csv', 'w', newline='')
+        self.file4 = open('{}4.csv'.format(filename), 'w', newline='')
         writer = csv.DictWriter(self.file4, fieldnames=self.file4_fieldnames)
         writer.writeheader()
 
