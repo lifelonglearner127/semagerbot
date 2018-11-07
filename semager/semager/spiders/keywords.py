@@ -8,6 +8,9 @@ class KeywordsSpider(scrapy.Spider):
     name = 'keywords'
     allowed_domains = ['semager.de']
     start_urls = ['http://semager.de/']
+    custom_settings = {
+        'DEPTH_LIMIT': 2
+    }
 
     def __init__(self, q='', pause_time=0, word_limit=25, depth=2, *args, **kwargs):
         super(KeywordsSpider, self).__init__(*args, **kwargs)
@@ -35,7 +38,13 @@ class KeywordsSpider(scrapy.Spider):
         self.start_urls = ['http://www.semager.de/keywords/?q=%s' % q_str]
 
     def parse(self, response):
+        if response.status != 200:
+            return None
+
         data = response.xpath('//td[@data-th]')
+        if not data:
+            return None
+
         parent = response.css('input.query').xpath('@value').extract()
 
         # Fields related to Table1
