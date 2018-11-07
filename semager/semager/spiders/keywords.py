@@ -65,6 +65,12 @@ class KeywordsSpider(scrapy.Spider):
         leaders = data[2].xpath('.//text()').extract()
         leaders = leaders[:self.word_limit]
 
+        # Fields related to Table4
+        table4 = response.xpath("//div[@class='card-block']")[0]
+        table4_rows = table4.xpath(".//text()").extract()
+        table4_rows1 = table4_rows[::2]
+        table4_rows2 = table4_rows[1::2]
+
         try:
             depth = response.meta['depth']
         except KeyError:
@@ -80,7 +86,9 @@ class KeywordsSpider(scrapy.Spider):
                 'follower': followers[i],
                 'rank': rank[i],
                 'date': date,
-                'leader': leaders[i]
+                'leader': leaders[i],
+                'table4_1': table4_rows1,
+                'table4_2': table4_rows2
             }
 
 
