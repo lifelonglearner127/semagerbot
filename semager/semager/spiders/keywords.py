@@ -116,6 +116,6 @@ class KeywordsSpider(scrapy.Spider):
             category_list.add_value('date', date)
             yield category_list.load_item()
 
-        for i in range(0, len(links)):
-            yield response.follow(links[i], callback=self.parse)
+        for link in links:
+            yield response.follow(link, callback=self.parse)
 
