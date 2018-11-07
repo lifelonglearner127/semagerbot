@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import scrapy
+import datetime
 
 
 class KeywordsSpider(scrapy.Spider):
@@ -45,12 +46,21 @@ class KeywordsSpider(scrapy.Spider):
     def parse(self, response):
         data = response.xpath('//td[@data-th]')
         parent = response.css('input.query').xpath('@value').extract()
+
+        # Fields related to Table1
         relation = data[0].xpath('.//small/text()').extract()
         relation = relation[:self.word_limit]
         children = data[0].xpath('.//a/text()').extract()
         children = children[:self.word_limit]
         links = data[0].xpath(".//a//@href").extract()
         links = links[:self.word_limit]
+
+        # Fields related to Table2
+        followers = data[1].xpath('.//text()').extract()
+        followers = followers[:self.word_limit]
+        rank = range(1, self.word_limit+1)
+        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
         try:
             depth = response.meta['depth']
         except KeyError:
@@ -62,8 +72,12 @@ class KeywordsSpider(scrapy.Spider):
                 'relation': relation[i],
                 'children': children[i],
                 'links': links[i],
-                'depth': depth
+                'depth': depth,
+                'follower': followers[i],
+                'rank': rank[i],
+                'date': date
             }
+
 
         for i in range(0, len(links)):
             yield response.follow(links[i], callback=self.parse)
