@@ -43,4 +43,28 @@ class KeywordsSpider(scrapy.Spider):
         self.start_urls = ['http://www.semager.de/keywords/?q=%s' % q_str]
 
     def parse(self, response):
-        pass
+        data = response.xpath('//td[@data-th]')
+        parent = response.css('input.query').xpath('@value').extract()
+        relation = data[0].xpath('.//small/text()').extract()
+        relation = relation[:self.word_limit]
+        children = data[0].xpath('.//a/text()').extract()
+        children = children[:self.word_limit]
+        links = data[0].xpath(".//a//@href").extract()
+        links = links[:self.word_limit]
+        try:
+            depth = response.meta['depth']
+        except KeyError:
+            depth = 0
+
+        for i in range(0, len(links)):
+            yield {
+                'parent': parent,
+                'relation': relation[i],
+                'children': children[i],
+                'links': links[i],
+                'depth': depth
+            }
+
+        for i in range(0, len(links)):
+            yield response.follow(links[i], callback=self.parse)
+
