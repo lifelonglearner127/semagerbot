@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import datetime
-
+from scrapy.loader import ItemLoader
+from semager.items import ChildItem, FollowedByItem, LedByItem, CategoryItem
 
 class KeywordsSpider(scrapy.Spider):
     name = 'keywords'
@@ -68,8 +69,13 @@ class KeywordsSpider(scrapy.Spider):
         # Fields related to Table4
         table4 = response.xpath("//div[@class='card-block']")[0]
         table4_rows = table4.xpath(".//text()").extract()
-        table4_rows1 = table4_rows[::2]
-        table4_rows2 = table4_rows[1::2]
+        categories = table4_rows[1::2]
+        likelihood = table4_rows[::2]
+
+        child_list = ItemLoader(item=ChildItem(), response=response)
+        followers_list = ItemLoader(item=FollowedByItem(), response=response)
+        leaders_list = ItemLoader(item=LedByItem(), response=response)
+        category_list = ItemLoader(item=CategoryItem(), response=response)
 
         try:
             depth = response.meta['depth']
@@ -77,20 +83,36 @@ class KeywordsSpider(scrapy.Spider):
             depth = 0
 
         for i in range(0, len(links)):
-            yield {
-                'parent': parent,
-                'relation': relation[i],
-                'children': children[i],
-                'links': links[i],
-                'depth': depth,
-                'follower': followers[i],
-                'rank': rank[i],
-                'date': date,
-                'leader': leaders[i],
-                'table4_1': table4_rows1,
-                'table4_2': table4_rows2
-            }
+            child_list.add_value('parent', parent)
+            child_list.add_value('child', children[i])
+            child_list.add_value('relation', relation[i])
+            child_list.add_value('depth', depth)
+            child_list.add_value('date', date)
+            yield child_list.load_item()
 
+        for i in range(0, len(links)):
+            followers_list.add_value('parent', parent)
+            followers_list.add_value('followed_by', followers[i])
+            followers_list.add_value('rank', rank[i])
+            followers_list.add_value('depth', depth)
+            followers_list.add_value('date', date)
+            yield followers_list.load_item()
+
+        for i in range(0, len(links)):
+            leaders_list.add_value('parent', parent)
+            leaders_list.add_value('led_by', leaders[i])
+            leaders_list.add_value('rank', rank[i])
+            leaders_list.add_value('depth', depth)
+            leaders_list.add_value('date', date)
+            yield leaders_list.load_item()
+
+        for i in range(0, len(categories)):
+            category_list.add_value('parent', parent)
+            category_list.add_value('category', categories[i])
+            category_list.add_value('likelihood', likelihood[i])
+            category_list.add_value('depth', depth)
+            category_list.add_value('date', date)
+            yield category_list.load_item()
 
         for i in range(0, len(links)):
             yield response.follow(links[i], callback=self.parse)

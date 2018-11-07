@@ -26,7 +26,8 @@ def filter_percentage(value):
 class ChildItem(scrapy.Item):
     parent = scrapy.Field(output_processor=TakeLast())
     child = scrapy.Field(output_processor=TakeLast())
-    relation = scrapy.Field(input_processor=MapCompose(filter_percentage), output_processor=TakeLast())
+    relation = scrapy.Field(input_processor=MapCompose(filter_percentage),
+                            output_processor=TakeLast())
     depth = scrapy.Field(output_processor=TakeLast())
     date = scrapy.Field(output_processor=TakeLast())
 
@@ -50,6 +51,7 @@ class LedByItem(scrapy.Item):
 class CategoryItem(scrapy.Item):
     parent = scrapy.Field(output_processor=TakeLast())
     category = scrapy.Field(output_processor=TakeLast())
-    likelihood = scrapy.Field(input_processor=MapCompose(filter_percentage), output_processor=TakeLast())
+    likelihood = scrapy.Field(input_processor=MapCompose(filter_percentage),
+                              output_processor=TakeLast())
     depth = scrapy.Field(output_processor=TakeLast())
     date = scrapy.Field(output_processor=TakeLast())
