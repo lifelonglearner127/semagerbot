@@ -30,16 +30,6 @@ class KeywordsSpider(scrapy.Spider):
         except ValueError:
             self.word_limit = 25
 
-        try:
-            self.depth = int(depth)
-
-            if self.depth > 5:
-                self.depth = 5
-            elif self.depth < 1:
-                self.depth = 1
-        except ValueError:
-            self.depth = 2
-
         q_str = q.strip()
         q_str = q_str.replace(' ', '+')
         self.start_urls = ['http://www.semager.de/keywords/?q=%s' % q_str]
