@@ -4,9 +4,8 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
-from scrapy.exporters import CsvItemExporter
-from semager.items import ChildItem, FollowedByItem, LedByItem, CategoryItem
 import csv
+from semager.items import ChildItem, FollowedByItem, LedByItem, CategoryItem
 
 
 class SemagerPipeline(object):

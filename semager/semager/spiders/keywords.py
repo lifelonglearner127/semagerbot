@@ -9,7 +9,8 @@ class KeywordsSpider(scrapy.Spider):
     allowed_domains = ['semager.de']
     start_urls = ['http://semager.de/']
     custom_settings = {
-        'DEPTH_LIMIT': 2
+        'DEPTH_LIMIT': 2,
+        'CLOSESPIDER_TIMEOUT': 0
     }
 
     def __init__(self, q='', pause_time=0, word_limit=25, depth=2, *args, **kwargs):
