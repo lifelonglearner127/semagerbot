@@ -4,6 +4,7 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+import os
 import csv
 from semager.items import ChildItem, FollowedByItem, LedByItem, CategoryItem
 
@@ -17,25 +18,34 @@ class SemagerPipeline(object):
 
 
     def open_spider(self, spider):
-        filename = ''
-        if spider.name == 'keywords':
-            filename = spider.file_name
 
-        self.file1 = open('{}1.csv'.format(filename), 'w', newline='')
-        writer = csv.DictWriter(self.file1, fieldnames=self.file1_fieldnames)
-        writer.writeheader()
+        if os.path.exists('semager1.csv'):
+            self.file1 = open('semager1.csv', 'a', newline='')
+        else:
+            self.file1 = open('semager1.csv', 'w', newline='')
+            writer = csv.DictWriter(self.file1, fieldnames=self.file1_fieldnames)
+            writer.writeheader()
 
-        self.file2 = open('{}2.csv'.format(filename), 'w', newline='')
-        writer = csv.DictWriter(self.file2, fieldnames=self.file2_fieldnames)
-        writer.writeheader()
+        if os.path.exists('semager2.csv'):
+            self.file2 = open('semager2.csv', 'a', newline='')
+        else:
+            self.file2 = open('semager2.csv', 'w', newline='')
+            writer = csv.DictWriter(self.file2, fieldnames=self.file2_fieldnames)
+            writer.writeheader()
 
-        self.file3 = open('{}3.csv'.format(filename), 'w', newline='')
-        writer = csv.DictWriter(self.file3, fieldnames=self.file3_fieldnames)
-        writer.writeheader()
+        if os.path.exists('semager3.csv'):
+            self.file3 = open('semager3.csv', 'a', newline='')
+        else:
+            self.file3 = open('semager3.csv', 'w', newline='')
+            writer = csv.DictWriter(self.file3, fieldnames=self.file3_fieldnames)
+            writer.writeheader()
 
-        self.file4 = open('{}4.csv'.format(filename), 'w', newline='')
-        writer = csv.DictWriter(self.file4, fieldnames=self.file4_fieldnames)
-        writer.writeheader()
+        if os.path.exists('semager4.csv'):
+            self.file4 = open('semager4.csv', 'a', newline='')
+        else:
+            self.file4 = open('semager4.csv', 'w', newline='')
+            writer = csv.DictWriter(self.file4, fieldnames=self.file4_fieldnames)
+            writer.writeheader()
 
     def close_spider(self, spider):
         self.file1.close()
