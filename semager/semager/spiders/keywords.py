@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
+import csv
 import scrapy
 import datetime
 from scrapy.loader import ItemLoader
 from semager.items import ChildItem, FollowedByItem, LedByItem, CategoryItem
+from twisted.internet.error import TimeoutError, TCPTimedOutError
 
 
 class KeywordsSpider(scrapy.Spider):
     name = 'keywords'
     allowed_domains = ['semager.de']
-    start_urls = ['http://semager.de/']
     custom_settings = {
         'DEPTH_LIMIT': 2,
         'CLOSESPIDER_TIMEOUT': 0
@@ -38,7 +40,15 @@ class KeywordsSpider(scrapy.Spider):
         q_str = q.strip()
         self.file_name = q_str
         q_str = q_str.replace(' ', '+')
-        self.start_urls = ['http://www.semager.de/keywords/?q=%s' % q_str]
+        self.start_url = 'http://www.semager.de/keywords/?q=%s' % q_str
+
+    def start_requests(self):
+        yield scrapy.Request(
+            self.start_url,
+            callback=self.parse,
+            errback=self.err_callback,
+            meta={'download_timeout': self.pause_time}
+        )
 
     def parse(self, response):
         if response.status != 200:
@@ -117,5 +127,30 @@ class KeywordsSpider(scrapy.Spider):
             yield category_list.load_item()
 
         for link in links:
-            yield response.follow(link, callback=self.parse)
+            yield response.follow(
+                link,
+                callback=self.parse,
+                errback=self.err_callback,
+                meta={'download_timeout': self.pause_time}
+            )
 
+    def err_callback(self, failure):
+        if failure.check(TimeoutError, TCPTimedOutError):
+            request = failure.request
+            if os.path.exists('semager_error.csv'):
+                error_log = open('semager_error.csv', 'a', newline='')
+                writer = csv.DictWriter(
+                    error_log,
+                    fieldnames=['url']
+                )
+            else:
+                error_log = open('semager_error.csv', 'w', newline='')
+                writer = csv.DictWriter(
+                    error_log,
+                    fieldnames=['url']
+                )
+                writer.writeheader()
+            self.logger.error('TimeoutError on %s', request.meta['download_latency'])
+            writer.writerow({
+                'url': request.url
+            })
