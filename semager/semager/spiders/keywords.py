@@ -15,7 +15,9 @@ class KeywordsSpider(scrapy.Spider):
         'DEPTH_LIMIT': 2
     }
 
-    def __init__(self, q='', pause_time=0, word_limit=25, depth=2, *args, **kwargs):
+    def __init__(self, q='', pause_time=0, word_limit=25, depth=2,
+        prefix='semager', *args, **kwargs):
+
         super(KeywordsSpider, self).__init__(*args, **kwargs)
 
         try:
@@ -36,18 +38,23 @@ class KeywordsSpider(scrapy.Spider):
         except ValueError:
             self.word_limit = 25
 
+        self.prefix = prefix.strip()
         q_str = q.strip()
-        self.file_name = q_str
-        q_str = q_str.replace(' ', '+')
-        self.start_url = 'http://www.semager.de/keywords/?q=%s' % q_str
+        q_str_list = q_str.split(',')
+        for q in q_str_list:
+            query = q.replace(' ', '+')
+            self.start_urls.append(
+                'http://www.semager.de/keywords/?q=%s' % query
+            )
 
     def start_requests(self):
-        yield scrapy.Request(
-            self.start_url,
-            callback=self.parse,
-            errback=self.err_callback,
-            meta={'download_timeout': self.pause_time}
-        )
+        for url in self.start_urls:
+            yield scrapy.Request(
+                url,
+                callback=self.parse,
+                errback=self.err_callback,
+                meta={'download_timeout': self.pause_time}
+            )
 
     def parse(self, response):
         if response.status != 200:
@@ -61,21 +68,24 @@ class KeywordsSpider(scrapy.Spider):
 
         # Fields related to Table1
         relation = data[0].xpath('.//small/text()').extract()
-        relation = relation[:self.word_limit]
-        children = data[0].xpath('.//a/text()').extract()
-        children = children[:self.word_limit]
-        links = data[0].xpath(".//a//@href").extract()
-        links = links[:self.word_limit]
+        if relation is not None and isinstance(relation, list):
+            relation = relation[:self.word_limit]
+            children = data[0].xpath('.//a/text()').extract()
+            children = children[:self.word_limit]
+            links = data[0].xpath(".//a//@href").extract()
+            links = links[:self.word_limit]
 
         # Fields related to Table2
         followers = data[1].xpath('.//text()').extract()
-        followers = followers[:self.word_limit]
-        rank = range(1, self.word_limit+1)
-        date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if followers is not None and isinstance(followers, list):
+            followers = followers[:self.word_limit]
+            rank = range(1, self.word_limit+1)
+            date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Fields related to Table3
         leaders = data[2].xpath('.//text()').extract()
-        leaders = leaders[:self.word_limit]
+        if leaders is not None and isinstance(leaders, list):
+            leaders = leaders[:self.word_limit]
 
         # Fields related to Table4
         table4 = response.xpath("//div[@class='card-block']")[0]
@@ -101,7 +111,7 @@ class KeywordsSpider(scrapy.Spider):
             child_list.add_value('date', date)
             yield child_list.load_item()
 
-        for i in range(0, len(links)):
+        for i in range(0, len(followers)):
             followers_list.add_value('parent', parent)
             followers_list.add_value('followed_by', followers[i])
             followers_list.add_value('rank', rank[i])
@@ -109,7 +119,7 @@ class KeywordsSpider(scrapy.Spider):
             followers_list.add_value('date', date)
             yield followers_list.load_item()
 
-        for i in range(0, len(links)):
+        for i in range(0, len(leaders)):
             leaders_list.add_value('parent', parent)
             leaders_list.add_value('led_by', leaders[i])
             leaders_list.add_value('rank', rank[i])

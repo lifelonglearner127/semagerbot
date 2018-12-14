@@ -11,39 +11,42 @@ from semager.items import ChildItem, FollowedByItem, LedByItem, CategoryItem
 
 class SemagerPipeline(object):
 
-    file1_fieldnames = ['parent', 'Child', 'Relation', 'N', 'Date']
-    file2_fieldnames = ['parent', 'Followed_by', 'Rank', 'N', 'Date']
-    file3_fieldnames = ['parent', 'Led by', 'Rank', 'N', 'Date']
-    file4_fieldnames = ['parent', 'category', 'likelihood', 'N', 'Date']
+    file1_fieldnames = ['Source', 'Target', 'Weight', 'N', 'Date']
+    file2_fieldnames = ['Source', 'Target', 'Rank', 'N', 'Date']
+    file3_fieldnames = ['Source', 'Target', 'Rank', 'N', 'Date']
+    file4_fieldnames = ['Source', 'Target', 'Weight', 'N', 'Date']
 
 
     def open_spider(self, spider):
-
-        if os.path.exists('semager1.csv'):
-            self.file1 = open('semager1.csv', 'a', newline='')
+        file_name = '{}_relation.csv'.format(spider.prefix)
+        if os.path.exists(file_name):
+            self.file1 = open(file_name, 'a', newline='')
         else:
-            self.file1 = open('semager1.csv', 'w', newline='')
+            self.file1 = open(file_name, 'w', newline='')
             writer = csv.DictWriter(self.file1, fieldnames=self.file1_fieldnames)
             writer.writeheader()
 
-        if os.path.exists('semager2.csv'):
-            self.file2 = open('semager2.csv', 'a', newline='')
+        file_name = '{}_follow.csv'.format(spider.prefix)
+        if os.path.exists(file_name):
+            self.file2 = open(file_name, 'a', newline='')
         else:
-            self.file2 = open('semager2.csv', 'w', newline='')
+            self.file2 = open(file_name, 'w', newline='')
             writer = csv.DictWriter(self.file2, fieldnames=self.file2_fieldnames)
             writer.writeheader()
 
-        if os.path.exists('semager3.csv'):
-            self.file3 = open('semager3.csv', 'a', newline='')
+        file_name = '{}_lead.csv'.format(spider.prefix)
+        if os.path.exists(file_name):
+            self.file3 = open(file_name, 'a', newline='')
         else:
-            self.file3 = open('semager3.csv', 'w', newline='')
+            self.file3 = open(file_name, 'w', newline='')
             writer = csv.DictWriter(self.file3, fieldnames=self.file3_fieldnames)
             writer.writeheader()
 
-        if os.path.exists('semager4.csv'):
-            self.file4 = open('semager4.csv', 'a', newline='')
+        file_name = '{}_category.csv'.format(spider.prefix)
+        if os.path.exists(file_name):
+            self.file4 = open(file_name, 'a', newline='')
         else:
-            self.file4 = open('semager4.csv', 'w', newline='')
+            self.file4 = open(file_name, 'w', newline='')
             writer = csv.DictWriter(self.file4, fieldnames=self.file4_fieldnames)
             writer.writeheader()
 
@@ -57,9 +60,9 @@ class SemagerPipeline(object):
         if isinstance(item, ChildItem):
             writer = csv.DictWriter(self.file1, self.file1_fieldnames)
             writer.writerow({
-                'parent': item['parent'],
-                'Child': item['child'],
-                'Relation': item['relation'],
+                'Source': item['parent'],
+                'Target': item['child'],
+                'Weight': item['relation'],
                 'N': item['depth'],
                 'Date': item['date']
             })
@@ -67,8 +70,8 @@ class SemagerPipeline(object):
         elif isinstance(item, FollowedByItem):
             writer = csv.DictWriter(self.file2, self.file2_fieldnames)
             writer.writerow({
-                'parent': item['parent'],
-                'Followed_by': item['followed_by'],
+                'Source': item['parent'],
+                'Target': item['followed_by'],
                 'Rank': item['rank'],
                 'N': item['depth'],
                 'Date': item['date']
@@ -77,8 +80,8 @@ class SemagerPipeline(object):
         elif isinstance(item, LedByItem):
             writer = csv.DictWriter(self.file3, self.file3_fieldnames)
             writer.writerow({
-                'parent': item['parent'],
-                'Led by': item['led_by'],
+                'Source': item['parent'],
+                'Target': item['led_by'],
                 'Rank': item['rank'],
                 'N': item['depth'],
                 'Date': item['date']
@@ -87,9 +90,9 @@ class SemagerPipeline(object):
         elif isinstance(item, CategoryItem):
             writer = csv.DictWriter(self.file4, self.file4_fieldnames)
             writer.writerow({
-                'parent': item['parent'],
-                'category': item['category'],
-                'likelihood': item['likelihood'],
+                'Source': item['parent'],
+                'Target': item['category'],
+                'Weight': item['likelihood'],
                 'N': item['depth'],
                 'Date': item['date']
             })

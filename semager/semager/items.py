@@ -20,7 +20,7 @@ class TakeLast(object):
 def filter_percentage(value):
     if value is not None:
         value = value.replace('%', '')
-        return float(value)/100.0
+        return round(float(value)/100.0, 4)
 
 
 class ChildItem(scrapy.Item):
